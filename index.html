@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VOICE WORLD AI</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101326;color:#fff;font-family:Arial,sans-serif;padding:18px}
+.wrap{max-width:650px;margin:auto}.header{text-align:center;padding:12px 0 22px}.logo{font-size:30px;font-weight:800;color:#b9a6ff;letter-spacing:1px}.sub{color:#aaa9c4;margin-top:8px}
+.panel{background:#1b1d38;border:1px solid #343657;border-radius:18px;padding:18px;margin:14px 0}
+label{display:block;font-size:14px;color:#c5c3df;margin:12px 0 6px}select,button{width:100%;border-radius:12px;padding:13px;background:#292c4d;color:#fff;border:1px solid #555779;font-size:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.title{font-weight:700;color:#c3b4ff;margin-bottom:10px}.textbox{min-height:100px;background:#101326;border-radius:12px;padding:14px;color:#fff;white-space:pre-wrap;word-break:break-word}
+button{cursor:pointer;margin-top:10px;background:linear-gradient(90deg,#7458d8,#a25dd6);border:none;font-weight:bold}.secondary{background:#303252;border:1px solid #555779}.mic{font-size:20px;padding:17px}.small{color:#aaa9c4;font-size:13px;line-height:1.5}.price{font-size:24px;color:#b9a6ff;font-weight:bold}.status{color:#c5c3df;margin-top:8px;min-height:20px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="header"><div class="logo">🌐 VOICE WORLD AI</div><div class="sub">Comprendre et parler toutes les langues</div></div>
+<div class="panel"><div class="row">
+<div><label for="sourceLanguage">Je parle</label><select id="sourceLanguage"><option value="fr-FR">Français</option><option value="en-US">Anglais (États-Unis)</option><option value="en-GB">Anglais (Royaume-Uni)</option><option value="es-ES">Espagnol</option><option value="pt-PT">Portugais</option><option value="de-DE">Allemand</option><option value="it-IT">Italien</option><option value="ar-SA">Arabe</option><option value="zh-CN">Chinois</option><option value="hi-IN">Hindi</option><option value="ru-RU">Russe</option><option value="ja-JP">Japonais</option><option value="ko-KR">Coréen</option><option value="nl-NL">Néerlandais</option><option value="tr-TR">Turc</option></select></div>
+<div><label for="language">Je veux comprendre</label><select id="language"><option value="en-US">Anglais (États-Unis)</option><option value="fr-FR">Français</option><option value="en-GB">Anglais (Royaume-Uni)</option><option value="es-ES">Espagnol</option><option value="pt-PT">Portugais</option><option value="de-DE">Allemand</option><option value="it-IT">Italien</option><option value="ar-SA">Arabe</option><option value="zh-CN">Chinois</option><option value="hi-IN">Hindi</option><option value="ru-RU">Russe</option><option value="ja-JP">Japonais</option><option value="ko-KR">Coréen</option><option value="nl-NL">Néerlandais</option><option value="tr-TR">Turc</option></select></div></div>
+<button id="listenButton" class="mic" onclick="startRecognition()">🎤 Parler pour traduire</button><div id="status" class="status">Prêt.</div></div>
+<div class="panel"><div class="title">🗣️ Texte original</div><div id="original" class="textbox">Votre texte apparaîtra ici.</div></div>
+<div class="panel"><div class="title">🌍 Traduction</div><div id="translated" class="textbox">La traduction apparaîtra ici.</div><button onclick="speak()">🔊 Écouter la traduction</button></div>
+<div class="panel"><div class="title">🔊 Réglages de la voix</div><label for="voiceGender">Voix souhaitée</label><select id="voiceGender"><option value="female">Féminine</option><option value="male">Masculine</option></select><label for="voiceAccent">Accent / langue de la voix</label><select id="voiceAccent"><option value="">Accent de la langue traduite</option><option value="en-US">Anglais américain</option><option value="en-GB">Anglais britannique</option><option value="en-AU">Anglais australien</option><option value="fr-FR">Français</option><option value="fr-CA">Français canadien</option><option value="es-ES">Espagnol</option><option value="pt-BR">Portugais brésilien</option><option value="de-DE">Allemand</option><option value="it-IT">Italien</option></select><button class="secondary" onclick="speak()">Tester / écouter</button><div class="small">Les accents et voix proposés dépendent des voix installées sur votre téléphone ou navigateur.</div></div>
+<div class="panel"><div class="title">🔐 Abonnement VOICE WORLD AI</div><div class="price">5 000 FCFA / 30 jours</div><div class="small">L'abonnement et les paiements ne sont pas encore activés dans cette version de test.</div></div>
+<div class="small" style="text-align:center;padding:12px">Version de test · La traduction nécessite une connexion Internet.</div>
+</div>
+<script>
+const SpeechRecognitionAPI=window.SpeechRecognition||window.webkitSpeechRecognition;
+let recognition;
+function setStatus(t){document.getElementById('status').textContent=t;}
+function startRecognition(){
+ if(!SpeechRecognitionAPI){alert('La reconnaissance vocale n’est pas disponible dans ce navigateur. Ouvre cette page dans Chrome.');return;}
+ recognition=new SpeechRecognitionAPI();recognition.lang=document.getElementById('sourceLanguage').value;recognition.interimResults=false;recognition.maxAlternatives=1;
+ recognition.onstart=()=>setStatus('🎙️ Écoute en cours…');recognition.onerror=e=>setStatus('Erreur vocale : '+e.error);recognition.onend=()=>{if(document.getElementById('status').textContent==='🎙️ Écoute en cours…')setStatus('Écoute terminée.');};
+ recognition.onresult=e=>{const words=e.results[0][0].transcript;document.getElementById('original').textContent=words;translateText(words);};
+ try{recognition.start();}catch(e){setStatus('Veuillez réessayer.');}
+}
+async function translateText(text){
+ const source=document.getElementById('sourceLanguage').value.split('-')[0];const target=document.getElementById('language').value.split('-')[0];const output=document.getElementById('translated');output.textContent='Traduction en cours…';setStatus('Traduction…');
+ if(source===target){output.textContent=text;setStatus('Terminé.');return;}
+ try{const params=new URLSearchParams({q:text,langpair:source+'|'+target});const response=await fetch('https://api.mymemory.translated.net/get?'+params);const data=await response.json();if(data.responseStatus!==200)throw new Error('Unavailable');output.textContent=data.responseData.translatedText;setStatus('Traduction terminée.');}
+ catch(err){output.textContent='Erreur de traduction. Réessaie.';setStatus('Traduction indisponible.');}
+}
+function speak(){const text=document.getElementById('translated').textContent;if(!text||text==='La traduction apparaîtra ici.'||text==='Traduction en cours…'||text==='Erreur de traduction. Réessaie.'){alert('Aucune traduction à écouter.');return;}
+ const msg=new SpeechSynthesisUtterance(text);let accent=document.getElementById('voiceAccent').value||document.getElementById('language').value;msg.lang=accent;const gender=document.getElementById('voiceGender').value;const voices=speechSynthesis.getVoices();const matches=voices.filter(v=>v.lang.toLowerCase().startsWith(accent.split('-')[0].toLowerCase()));const selected=matches.find(v=>gender==='female'?/female|woman|femme|zira|samantha|victoria|google.*female/i.test(v.name):/male|man|homme|david|daniel|thomas/i.test(v.name));if(selected)msg.voice=selected;speechSynthesis.cancel();speechSynthesis.speak(msg);}
+if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();speechSynthesis.getVoices();}
+</script></body></html>
